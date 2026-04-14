@@ -48,6 +48,13 @@ It includes:
 
 ---
 
+## 🖼️ Dashboard Screenshots
+<img width="1918" height="959" alt="image" src="https://github.com/user-attachments/assets/507a2eed-b982-4433-ab24-bf62faa3813e" />
+<img width="1914" height="717" alt="image" src="https://github.com/user-attachments/assets/3772848d-2cab-4b5c-9497-135bd79281c8" />
+<img width="1881" height="947" alt="image" src="https://github.com/user-attachments/assets/2b883d25-8ecf-4f27-b562-1037902202ed" />
+
+
+
 ## 🚀 How to Run
 
 ### 1. Install dependencies
