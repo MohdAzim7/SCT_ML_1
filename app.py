@@ -74,36 +74,67 @@ elif menu == "Batch Prediction":
         st.write("📊 Uploaded Data", data.head())
 
         try:
-            X = data.values
-            X = (X - mean) / std
+            required_cols = [
+                "area", "bedrooms", "bathrooms",
+                "garage", "quality", "year", "basement"
+            ]
 
-            preds = np.dot(X, weights) + bias
-            data["Predicted Price"] = preds
+            if not all(col in data.columns for col in required_cols):
+                st.error("⚠️ CSV must contain columns: " + ", ".join(required_cols))
+            else:
+                X = data[required_cols].values
+                std_safe = np.where(std == 0, 1, std)
+                X = (X - mean) / std_safe
 
-            st.write("✅ Predictions", data)
+                preds = np.dot(X, weights) + bias
+                data["Predicted Price"] = preds
 
-            csv = data.to_csv(index=False).encode("utf-8")
-            st.download_button("Download Results", csv, "predictions.csv")
+                st.success("✅ Predictions completed")
+                st.write(data)
 
-        except:
-            st.error("⚠️ Make sure CSV has correct columns")
+                csv = data.to_csv(index=False).encode("utf-8")
+                st.download_button("Download Results", csv, "predictions.csv")
 
+        except Exception as e:
+            st.error(f"Error: {e}")
 # =========================================================
 # 🔹 3. MODEL INSIGHTS
 # =========================================================
 elif menu == "Model Insights":
     st.subheader("📈 Model Insights")
 
-    # Fake example for visualization
-    actual = np.linspace(100000, 500000, 50)
-    predicted = actual + np.random.normal(0, 20000, 50)
+    file = st.file_uploader("Upload CSV with actual prices", type=["csv"])
 
-    fig, ax = plt.subplots()
-    ax.scatter(actual, predicted)
-    ax.plot(actual, actual, 'r--')
+    if file is not None:
+        data = pd.read_csv(file)
 
-    ax.set_xlabel("Actual Price")
-    ax.set_ylabel("Predicted Price")
-    ax.set_title("Predicted vs Actual")
+        required_cols = [
+            "area", "bedrooms", "bathrooms",
+            "garage", "quality", "year", "basement", "price"
+        ]
 
-    st.pyplot(fig)
+        if not all(col in data.columns for col in required_cols):
+            st.error("⚠️ CSV must include features + 'price' column")
+        else:
+            X = data[required_cols[:-1]].values
+            y_actual = data["price"].values
+
+            std_safe = np.where(std == 0, 1, std)
+            X = (X - mean) / std_safe
+
+            y_pred = np.dot(X, weights) + bias
+
+            fig, ax = plt.subplots(figsize=(6, 4))
+
+            ax.scatter(y_actual, y_pred)
+            ax.plot(
+                [y_actual.min(), y_actual.max()],
+                [y_actual.min(), y_actual.max()],
+                'r--'
+            )
+
+            ax.set_xlabel("Actual Price")
+            ax.set_ylabel("Predicted Price")
+            ax.set_title("Model Performance")
+
+            st.pyplot(fig, use_container_width=False)  # ✅ SAME INDENT LEVEL
